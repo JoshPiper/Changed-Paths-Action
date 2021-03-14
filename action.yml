@@ -1,0 +1,21 @@
+name: "Changed Paths Action"
+description: "Checks a variety of input data, to get a list of changed paths, to allow for linting (for example)"
+
+inputs:
+  github_token:
+    description: PAT or GitHub Token
+    required: true
+  workflow_id:
+    description: Workflow ID
+    required: false
+  filter:
+    description: fnmatch / glob filter for output'd files.
+    required: false
+
+outputs:
+  paths:
+    description: "Space Delimited, Quote Escaped Paths"
+
+runs:
+  using: "node12"
+  main: "dist/index.js"
