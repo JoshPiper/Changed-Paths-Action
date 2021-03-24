@@ -1,3 +1,12 @@
+## [1.1.1](https://github.com/JoshPiper/GModStore-Version-Parser/compare/v1.1.0...v1.1.1) (2021-03-24)
+
+
+### Bug Fixes
+
+* remove duplicate info. ([73d6b0b](https://github.com/JoshPiper/GModStore-Version-Parser/commit/73d6b0b73c0d6e29778139464d84c1cbb4d27cff))
+
+
+
 # [1.1.0](https://github.com/JoshPiper/GModStore-Version-Parser/compare/v1.0.1...v1.1.0) (2021-03-24)
 
 

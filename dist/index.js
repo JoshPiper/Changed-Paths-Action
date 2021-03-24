@@ -230,13 +230,12 @@ async function getLastForPullRequest(){
 	if (!last){
 		core.startGroup("Checking Branch Deviation")
 
-		core.info("Pulling PR data.")
 		let refs = await getPullRequestRefs(payload.number)
 		if (refs !== null){
 			const [base_ref, head_ref] = refs
 			last = await getBranchDeviation(base_ref, head_ref)
-			core.endGroup()
 		}
+		core.endGroup()
 	}
 
 	// Go vs empty tag.
@@ -263,6 +262,8 @@ async function main(){
 	}
 
 	if (!current || !last){
+		core.info(`start sha: ${current}`)
+		core.info(`end sha: ${last}`)
 		core.setOutput("files", "")
 		core.setFailed("Failed to get start or endpoint for diff.")
 		return
