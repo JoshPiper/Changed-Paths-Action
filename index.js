@@ -223,7 +223,6 @@ async function getLastForPullRequest(){
 	if (!last){
 		core.startGroup("Checking Branch Deviation")
 
-		core.info("Pulling PR data.")
 		let refs = await getPullRequestRefs(payload.number)
 		if (refs !== null){
 			const [base_ref, head_ref] = refs
