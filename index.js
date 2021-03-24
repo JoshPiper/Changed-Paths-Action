@@ -228,8 +228,8 @@ async function getLastForPullRequest(){
 		if (refs !== null){
 			const [base_ref, head_ref] = refs
 			last = await getBranchDeviation(base_ref, head_ref)
-			core.endGroup()
 		}
+		core.endGroup()
 	}
 
 	// Go vs empty tag.
