@@ -74,8 +74,8 @@ async function getLastWorkflowSHA(){
  * @returns {Promise<?string>}
  */
 async function getBranchDeviation(base = undefined, split = undefined){
-	core.info("base", base, master)
-	core.info("split", split, branch)
+	core.info("base", base, "default", master)
+	core.info("split", split, "default", branch)
 	if (base === undefined){
 		base = master
 	}
