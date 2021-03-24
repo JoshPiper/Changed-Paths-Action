@@ -177,6 +177,7 @@ async function getLastForPullRequest(){
 	// Branch Deviation
 	if (!last){
 		core.startGroup("Checking Branch Deviation")
+		console.log(ctx)
 		last = await getBranchDeviation(ctx.base_ref, ctx.head_ref)
 		core.endGroup()
 	}
