@@ -73,7 +73,15 @@ async function getLastWorkflowSHA(){
  * Get the SHA of the point where this branch deviated.
  * @returns {Promise<?string>}
  */
-async function getBranchDeviation(base = master, split = branch){
+async function getBranchDeviation(base = undefined, split = undefined){
+	core.info("base", base, master)
+	core.info("split", split, branch)
+	if (base === undefined){
+		base = master
+	}
+	if (split === undefined){
+		split = branch
+	}
 	core.info("base", base, master)
 	core.info("split", split, branch)
 	if (!base || !split){return null}
