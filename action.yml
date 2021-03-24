@@ -13,7 +13,7 @@ inputs:
     required: false
 
 outputs:
-  paths:
+  files:
     description: "Newline Delimited Paths"
 
 runs:

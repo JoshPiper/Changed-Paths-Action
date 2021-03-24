@@ -24,5 +24,5 @@ Easily find which paths have changed within workflow runs.
 
 ## Outputs
 
-### paths
+### files
 [**String[]**] Newline Delimited Paths.
