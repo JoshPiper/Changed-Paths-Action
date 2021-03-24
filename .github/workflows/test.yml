@@ -1,0 +1,16 @@
+name: Test
+on:
+  pull_request: null
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run
+        uses: JoshPiper/Changed-Paths-Action@feat/pr-support
+        id: test
+      - name: Dump
+        run: echo "${{ toJSON(steps.test.outputs) }}"
