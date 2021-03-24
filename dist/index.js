@@ -26,8 +26,7 @@ function inpOrFail(input, def = null){
 const ctx = github.context
 const octokit = github.getOctokit(inpOrFail("github_token"))
 
-// const eventName = ctx.eventName
-
+const eventName = ctx.eventName
 const ref = ctx.ref
 const payload = ctx.payload
 const repo = payload.repository
@@ -81,17 +80,17 @@ async function getLastWorkflowSHA(){
  * Get the SHA of the point where this branch deviated.
  * @returns {Promise<?string>}
  */
-async function getBranchDeviation(){
-	if (!master || !branch){return null}
+async function getBranchDeviation(base = master, split = branch){
+	if (!base || !split){return null}
 
 	let deviated = false
 	try {
 		core.info("Unshallowing Repository")
 		await exec("git", ["fetch", "--unshallow"])
-		await exec("git", ["branch", master, `origin/${master}`])
+		await exec("git", ["branch", base, `origin/${base}`])
 
 		core.info("Finding Merge Base")
-		let deviation = await exec("git", ["merge-base", master, branch])
+		let deviation = await exec("git", ["merge-base", base, split])
 		deviation = String(deviation.stdout).trim()
 		if (deviation !== ""){
 			deviated = deviation
@@ -164,9 +163,42 @@ async function getLastForBranch(){
 	}
 }
 
+/**
+ * Get the endpoint SHA for a pull request.
+ * @returns {Promise<?string>}
+ */
+async function getLastForPullRequest(){
+	let last = false
+
+	// Branch Deviation
+	if (!last){
+		core.startGroup("Checking Branch Deviation")
+		last = await getBranchDeviation(ctx.base_ref, ctx.head_ref)
+		core.endGroup()
+	}
+
+	// Go vs empty tag.
+	if (!last){
+		core.startGroup("Creating Empty Tag")
+		last = await getEmptyTag()
+		core.endGroup()
+	}
+
+	if (last){
+		return last
+	} else {
+		return null
+	}
+}
+
 async function main(){
 	let current = payload.after
-	let last = await getLastForBranch()
+	let last = false
+	if (branch){
+		last = await getLastForBranch()
+	} else if (eventName === "pull_request"){
+		last = await getLastForPullRequest()
+	}
 
 	if (!current || !last){
 		core.setOutput("files", "")
