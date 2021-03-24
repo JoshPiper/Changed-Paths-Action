@@ -182,26 +182,22 @@ async function getPullRequestRefs(pr_id){
 	if (!pr_id){return null}
 
 	core.info("Fetching PR data.")
-	let requests = await octokit.pulls.get({
+	let request = await octokit.pulls.get({
 		owner: repoOwner,
 		repo: repoName,
 		pull_number: pr_id
 	})
-	console.log(requests)
-	return ["no", "u"]
-	// let request = requests.data
-	// console.log(request)
+	if (request.status !== 200){
+		core.warning("No pull request data found.")
+		return null
+	}
 
-	// core.info("Fetching HEAD commit.")
-	// let heads = runs.map(run => run.head_commit)
-	// heads = heads.sort((a, b) => Math.sign(new Date(b.timestamp) - new Date(a.timestamp)))
-	// if (heads[0] !== undefined){
-	// 	core.info("Found SHA")
-	// 	return heads[0].id
-	// }
+	request = request.data
+	let base = request.base.ref
+	let head = request.head.ref
 
-	core.warning("No pull request data found.")
-	return null
+	core.info("Found request data.")
+	return [base, head]
 }
 /**
  * Get the endpoint SHA for a pull request.
@@ -268,7 +264,6 @@ async function main(){
 		return
 	}
 	core.endGroup()
-
 
 	core.info(`Diffing between ${current} and ${last}`)
 	let diff
