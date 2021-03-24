@@ -82,6 +82,7 @@ async function getLastWorkflowSHA(){
  */
 async function getBranchDeviation(base = master, split = branch){
 	if (!base || !split){return null}
+	core.info(`Finding deviation between ${base} and ${split}`)
 
 	let deviated = false
 	try {
