@@ -81,16 +81,13 @@ async function getLastWorkflowSHA(){
  * @returns {Promise<?string>}
  */
 async function getBranchDeviation(base = undefined, split = undefined){
-	core.info("base", base, "default", master)
-	core.info("split", split, "default", branch)
 	if (base === undefined){
 		base = master
 	}
 	if (split === undefined){
 		split = branch
 	}
-	core.info("base", base, master)
-	core.info("split", split, branch)
+
 	if (!base || !split){return null}
 	core.info(`Finding deviation between ${base} and ${split}`)
 
@@ -98,7 +95,22 @@ async function getBranchDeviation(base = undefined, split = undefined){
 	try {
 		core.info("Unshallowing Repository")
 		await exec("git", ["fetch", "--unshallow"])
-		await exec("git", ["branch", base, `origin/${base}`])
+
+		core.info("Checking head branch existance.")
+		let exists = await exec("git", ["show-ref", `refs/heads/${split}`])
+		exists = String(exists.stdout).trim() !== ""
+		if (!exists){
+			core.info("Setting up head branch.")
+			await exec("git", ["branch", split, `origin/${split}`])
+		}
+
+		core.info("Checking base branch existance.")
+		exists = await exec("git", ["show-ref", `refs/heads/${base}`])
+		exists = String(exists.stdout).trim() !== ""
+		if (!exists){
+			core.info("Setting up base branch.")
+			await exec("git", ["branch", base, `origin/${base}`])
+		}
 
 		core.info("Finding Merge Base")
 		let deviation = await exec("git", ["merge-base", base, split])
