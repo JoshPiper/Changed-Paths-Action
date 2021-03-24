@@ -19,8 +19,7 @@ function inpOrFail(input, def = null){
 const ctx = github.context
 const octokit = github.getOctokit(inpOrFail("github_token"))
 
-// const eventName = ctx.eventName
-
+const eventName = ctx.eventName
 const ref = ctx.ref
 const payload = ctx.payload
 const repo = payload.repository
@@ -70,21 +69,52 @@ async function getLastWorkflowSHA(){
 	return null
 }
 
+async function branchExistsLocally(check){
+	try {
+		let exists = await exec("git", ["show-ref", `refs/heads/${check}`])
+		exists = String(exists.stdout).trim() !== ""
+		return exists
+	} catch(e){
+		return false
+	}
+}
+
 /**
  * Get the SHA of the point where this branch deviated.
  * @returns {Promise<?string>}
  */
-async function getBranchDeviation(){
-	if (!master || !branch){return null}
+async function getBranchDeviation(base = undefined, split = undefined){
+	if (base === undefined){
+		base = master
+	}
+	if (split === undefined){
+		split = branch
+	}
+
+	if (!base || !split){return null}
+	core.info(`Finding deviation between ${base} and ${split}`)
 
 	let deviated = false
 	try {
 		core.info("Unshallowing Repository")
 		await exec("git", ["fetch", "--unshallow"])
-		await exec("git", ["branch", master, `origin/${master}`])
+
+		core.info("Checking head branch existance.")
+		let exists = await branchExistsLocally(split)
+		if (!exists){
+			core.info("Setting up head branch.")
+			await exec("git", ["branch", split, `origin/${split}`])
+		}
+
+		core.info("Checking base branch existance.")
+		exists = await branchExistsLocally(base)
+		if (!exists){
+			core.info("Setting up base branch.")
+			await exec("git", ["branch", base, `origin/${base}`])
+		}
 
 		core.info("Finding Merge Base")
-		let deviation = await exec("git", ["merge-base", master, branch])
+		let deviation = await exec("git", ["merge-base", base, split])
 		deviation = String(deviation.stdout).trim()
 		if (deviation !== ""){
 			deviated = deviation
@@ -157,9 +187,73 @@ async function getLastForBranch(){
 	}
 }
 
+/**
+ * Get the base ref for a pull request.
+ * @returns {Promise<?string>}
+ */
+async function getPullRequestRefs(pr_id){
+	if (!pr_id){return null}
+
+	core.info("Fetching PR data.")
+	let request = await octokit.pulls.get({
+		owner: repoOwner,
+		repo: repoName,
+		pull_number: pr_id
+	})
+	if (request.status !== 200){
+		core.warning("No pull request data found.")
+		return null
+	}
+
+	request = request.data
+	let base = request.base.ref
+	let head = request.head.ref
+
+	core.info("Found request data.")
+	return [base, head]
+}
+/**
+ * Get the endpoint SHA for a pull request.
+ * @returns {Promise<?string>}
+ */
+async function getLastForPullRequest(){
+	let last = false
+
+	// Branch Deviation
+	if (!last){
+		core.startGroup("Checking Branch Deviation")
+
+		core.info("Pulling PR data.")
+		let refs = await getPullRequestRefs(payload.number)
+		if (refs !== null){
+			const [base_ref, head_ref] = refs
+			last = await getBranchDeviation(base_ref, head_ref)
+			core.endGroup()
+		}
+	}
+
+	// Go vs empty tag.
+	if (!last){
+		core.startGroup("Creating Empty Tag")
+		last = await getEmptyTag()
+		core.endGroup()
+	}
+
+	if (last){
+		return last
+	} else {
+		return null
+	}
+}
+
 async function main(){
 	let current = payload.after
-	let last = await getLastForBranch()
+	let last = false
+	if (branch){
+		last = await getLastForBranch()
+	} else if (eventName === "pull_request"){
+		last = await getLastForPullRequest()
+	}
 
 	if (!current || !last){
 		core.setOutput("files", "")
@@ -183,7 +277,6 @@ async function main(){
 		return
 	}
 	core.endGroup()
-
 
 	core.info(`Diffing between ${current} and ${last}`)
 	let diff
