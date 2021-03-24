@@ -14,7 +14,7 @@ inputs:
 
 outputs:
   paths:
-    description: "Space Delimited, Quote Escaped Paths"
+    description: "Newline Delimited Paths"
 
 runs:
   using: "node12"

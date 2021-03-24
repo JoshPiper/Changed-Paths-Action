@@ -1,31 +1,28 @@
-# GModStore Deployment Action
+# Changed Paths Parser
 
-Easily upload an addon build to GModStore.
+Easily find which paths have changed within workflow runs.
 
 ## Usage
 ```yml
-- name: Get Upload Information
-  uses: JoshPiper/GModStore-Version-Parser@v1.0.0
-  id: version
+- name: Get Changed Paths
+  uses: JoshPiper/Changed-Paths-Action@v1.0.0
+  id: paths
 - name: Dump Information
-  run: echo "${{ toJSON(steps.version.outputs) }}"
+  run: echo "${{ toJSON(steps.paths.outputs) }}"
 ```
 
 ## Inputs
 
-### version
-[**Optional, default: GITHUB_REF **] An explicit version, such as if you use a conventional commit parser. 
+### github_token
+[**String**] GitHub PAT or Token for authenticating with Octokit to get workflow run data.
+
+### workflow_id
+[**String: optional**] The filename of the workflow to search for prior runs of.
+
+### filter
+[**String: optional**] An fnmatch / glob filter to pass the diff'd files through before returning.
 
 ## Outputs
 
-### branch
-[**Boolean**] True if the action is running on a branch.
-
-### tag
-[**Boolean**] True if the action is running on a tag / release.
-
-### (raw)version
-[**String**] Either the version tag, for the GitHub API, or the cleaned tag, for GModStore.
-
-### deploy
-[**String/False**] The type of version which should be uploaded, or false if none. This can be passed directly into GModStore-Deployment/type.
+### paths
+[**String[]**] Newline Delimited Paths.
