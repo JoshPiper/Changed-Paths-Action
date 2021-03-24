@@ -175,6 +175,33 @@ async function getLastForBranch(){
 }
 
 /**
+ * Get the base ref for a pull request.
+ * @returns {Promise<?string>}
+ */
+async function getPullRequestRefs(pr_id){
+	if (!pr_id){return null}
+
+	core.info("Fetching PR data.")
+	let requests = await octokit.pulls.get({
+		owner: repoOwner,
+		repo: repoName,
+		pull_number: pr_id
+	})
+	let request = requests.data
+	console.log(request)
+
+	// core.info("Fetching HEAD commit.")
+	// let heads = runs.map(run => run.head_commit)
+	// heads = heads.sort((a, b) => Math.sign(new Date(b.timestamp) - new Date(a.timestamp)))
+	// if (heads[0] !== undefined){
+	// 	core.info("Found SHA")
+	// 	return heads[0].id
+	// }
+
+	core.warning("No pull request data found.")
+	return null
+}
+/**
  * Get the endpoint SHA for a pull request.
  * @returns {Promise<?string>}
  */
@@ -184,8 +211,10 @@ async function getLastForPullRequest(){
 	// Branch Deviation
 	if (!last){
 		core.startGroup("Checking Branch Deviation")
-		console.log(ctx)
-		last = await getBranchDeviation(ctx.base_ref, ctx.head_ref)
+
+		core.info("Pulling PR data.")
+		const [base_ref, head_ref] = await getPullRequestRefs(payload.number)
+		last = await getBranchDeviation(base_ref, head_ref)
 		core.endGroup()
 	}
 
