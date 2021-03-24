@@ -81,8 +81,8 @@ async function getLastWorkflowSHA(){
  * @returns {Promise<?string>}
  */
 async function getBranchDeviation(base = undefined, split = undefined){
-	core.info("base", base, master)
-	core.info("split", split, branch)
+	core.info("base", base, "default", master)
+	core.info("split", split, "default", branch)
 	if (base === undefined){
 		base = master
 	}
@@ -184,6 +184,7 @@ async function getLastForPullRequest(){
 	// Branch Deviation
 	if (!last){
 		core.startGroup("Checking Branch Deviation")
+		console.log(ctx)
 		last = await getBranchDeviation(ctx.base_ref, ctx.head_ref)
 		core.endGroup()
 	}
