@@ -76,6 +76,16 @@ async function getLastWorkflowSHA(){
 	return null
 }
 
+async function branchExistsLocally(check){
+	try {
+		let exists = await exec("git", ["show-ref", `refs/heads/${check}`])
+		exists = String(exists.stdout).trim() !== ""
+		return exists
+	} catch(e){
+		return false
+	}
+}
+
 /**
  * Get the SHA of the point where this branch deviated.
  * @returns {Promise<?string>}
@@ -97,16 +107,14 @@ async function getBranchDeviation(base = undefined, split = undefined){
 		await exec("git", ["fetch", "--unshallow"])
 
 		core.info("Checking head branch existance.")
-		let exists = await exec("git", ["show-ref", `refs/heads/${split}`])
-		exists = String(exists.stdout).trim() !== ""
+		let exists = await branchExistsLocally(split)
 		if (!exists){
 			core.info("Setting up head branch.")
 			await exec("git", ["branch", split, `origin/${split}`])
 		}
 
 		core.info("Checking base branch existance.")
-		exists = await exec("git", ["show-ref", `refs/heads/${base}`])
-		exists = String(exists.stdout).trim() !== ""
+		exists = await branchExistsLocally(base)
 		if (!exists){
 			core.info("Setting up base branch.")
 			await exec("git", ["branch", base, `origin/${base}`])
