@@ -258,7 +258,6 @@ async function main(){
 	}
 	core.endGroup()
 
-
 	core.info(`Diffing between ${current} and ${last}`)
 	let diff
 	try {
