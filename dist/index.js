@@ -262,8 +262,6 @@ async function main(){
 	}
 
 	if (!current || !last){
-		core.info(`start sha: ${current}`)
-		core.info(`end sha: ${last}`)
 		core.setOutput("files", "")
 		core.setFailed("Failed to get start or endpoint for diff.")
 		return

@@ -1,3 +1,13 @@
+## [1.1.2](https://github.com/JoshPiper/GModStore-Version-Parser/compare/v1.1.1...v1.1.2) (2021-03-24)
+
+
+### Bug Fixes
+
+* fixed readme updater. ([9a45dea](https://github.com/JoshPiper/GModStore-Version-Parser/commit/9a45dea5e3da5929e994466f42d57c5464a87b32))
+* removed debug because the moment i start trying to test stuff the issue vanishes thanks github very cool. ([ec607ee](https://github.com/JoshPiper/GModStore-Version-Parser/commit/ec607ee5cbc6a6b261a94369532579349f4389fc))
+
+
+
 ## [1.1.1](https://github.com/JoshPiper/GModStore-Version-Parser/compare/v1.1.0...v1.1.1) (2021-03-24)
 
 
