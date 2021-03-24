@@ -180,8 +180,10 @@ async function getPullRequestRefs(pr_id){
 		repo: repoName,
 		pull_number: pr_id
 	})
-	let request = requests.data
-	console.log(request)
+	console.log(requests)
+	return ["no", "u"]
+	// let request = requests.data
+	// console.log(request)
 
 	// core.info("Fetching HEAD commit.")
 	// let heads = runs.map(run => run.head_commit)
@@ -206,9 +208,12 @@ async function getLastForPullRequest(){
 		core.startGroup("Checking Branch Deviation")
 
 		core.info("Pulling PR data.")
-		const [base_ref, head_ref] = await getPullRequestRefs(payload.number)
-		last = await getBranchDeviation(base_ref, head_ref)
-		core.endGroup()
+		let refs = await getPullRequestRefs(payload.number)
+		if (refs !== null){
+			const [base_ref, head_ref] = refs
+			last = await getBranchDeviation(base_ref, head_ref)
+			core.endGroup()
+		}
 	}
 
 	// Go vs empty tag.
