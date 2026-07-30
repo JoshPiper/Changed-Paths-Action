@@ -246,7 +246,7 @@ async function getLastForPullRequest(){
 }
 
 async function main(){
-	let current = payload.after
+	let current = payload.after || (payload.pull_request && payload.pull_request.head.sha)
 	let last = false
 	if (branch){
 		last = await getLastForBranch()
