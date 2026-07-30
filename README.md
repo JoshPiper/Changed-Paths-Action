@@ -5,7 +5,7 @@ Easily find which paths have changed within workflow runs.
 ## Usage
 ```yml
 - name: Get Changed Paths
-  uses: JoshPiper/Changed-Paths-Action@v1.1.2
+  uses: JoshPiper/Changed-Paths-Action@v1.1.3
   id: paths
 - name: Dump Information
   run: echo "${{ toJSON(steps.paths.outputs) }}"
